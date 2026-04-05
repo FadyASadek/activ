@@ -26,7 +26,10 @@ const app = express();
 
 // 5️⃣ Middlewares
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // الفرونت اند بتاعك
+    origin: function (origin, callback) {
+        // Allow all origins (Localhost & Any Vercel domain)
+        callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
