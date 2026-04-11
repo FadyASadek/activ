@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import axios from "axios";
 import toast from "react-hot-toast";
 
 export default function AdminLogin() {
@@ -22,24 +23,21 @@ export default function AdminLogin() {
 
     try {
       const apiUrl = typeof window === 'undefined' ? (process.env.INTERNAL_API_URL || 'http://app:3000') : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
-      const res = await fetch(`${apiUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
+      const res = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
+      const data = res.data;
       
-      if (!res.ok) throw new Error(data.message || "اسم المستخدم أو كلمة المرور غير صحيحة");
       if (data.user?.role !== "admin") throw new Error("ليس لديك صلاحيات الدخول");
 
-      localStorage.setItem("isAdminLoggedIn", "true");
-      localStorage.setItem("adminName", data.user.name);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.user.role);
+      localStorage.setItem("userName", data.user.name);
+      
       toast.success("تم تسجيل الدخول بنجاح");
       router.push(`/${locale}/admin`);
     } catch(err) {
-      setError(err.message || "خطأ في الاتصال بالخادم");
-      toast.error(err.message || "خطأ في الاتصال بالخادم");
+      const errorMsg = err.response?.data?.message || err.message || "خطأ في الاتصال بالخادم";
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
     setLoading(false);
   };

@@ -9,7 +9,8 @@ const authMiddleware = (req, res, next) => {
       .json({ message: "No token or invalid format, authorization denied" });
   }
 
-  const token = authHeader.replace("Bearer ", "");
+  // Fix JWT Bug: Strip prefix and explicitly trim whitespace
+  const token = authHeader.replace("Bearer ", "").trim();
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

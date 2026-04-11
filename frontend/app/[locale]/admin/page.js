@@ -98,13 +98,21 @@ export default function AdminPage() {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    if (role !== "admin") { setIsAuthorized(false); setIsChecking(false); return; }
+    
+    if (!token || role !== "admin") {
+      setIsAuthorized(false);
+      setIsChecking(false);
+      router.push(`/${locale}/admin-login`);
+      return;
+    }
+    
     setIsAuthorized(true);
     setIsChecking(false);
     const name = localStorage.getItem("userName");
     if (name) setAdminName(name);
-  }, []);
+  }, [router, locale]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

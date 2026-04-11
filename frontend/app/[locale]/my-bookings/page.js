@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import api from '@/utils/api';
 import EmptyState from '@/components/EmptyState';
 import { BookingRowSkeleton } from '@/components/ActivityCardSkeleton';
@@ -21,6 +22,7 @@ export default function MyBookingsPage({ params }) {
   const resolvedParams = typeof params?.then === 'function' ? use(params) : params;
   const lang = resolvedParams?.locale || 'ar';
   const isAr = lang === 'ar';
+  const router = useRouter();
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,15 +94,16 @@ export default function MyBookingsPage({ params }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      router.push(`/${lang}/auth`);
+      return;
+    }
+    
     const name = localStorage.getItem('userName');
     if (name) setUserName(name);
 
-    if (token) {
-      loadBookings();
-    } else {
-      setLoading(false);
-    }
-  }, []);
+    loadBookings();
+  }, [router, lang]);
 
 
   if (!userName && !localStorage.getItem('token')) return (

@@ -26,7 +26,10 @@ const app = express();
 
 // 5️⃣ Middlewares
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // الفرونت اند بتاعك
+    origin: function (origin, callback) {
+        // Allow all origins (Localhost & Any Vercel domain)
+        callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
@@ -76,6 +79,10 @@ app.get("/api/history", async (req, res) => {
     }
 });
 
-// 9️⃣ Start server
+// 9️⃣ Start server (Conditional for Vercel)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
+module.exports = app;
